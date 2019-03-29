@@ -1,7 +1,6 @@
 package com.mvproject.updater
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -14,13 +13,12 @@ import org.jetbrains.anko.*
 import java.io.File
 import java.net.URL
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.fragment.app.FragmentActivity
 import com.kotlinpermissions.KotlinPermissions
 
-class Updater(private val view : Activity) {
+class Updater(private val view : Context) {
     private var fileJson = ""
     private var dm: ThinDownloadManager = ThinDownloadManager()
     private val currentAppName: String
@@ -38,7 +36,6 @@ class Updater(private val view : Activity) {
 
     fun setUpdateJsonUrl(url : String){
         fileJson = url
-        view.toast(currentAppVersion)
     }
 
     fun start() {
@@ -99,6 +96,7 @@ class Updater(private val view : Activity) {
                         errorCode: Int,
                         errorMessage: String?
                     ) {
+                        if (progressDialog.isShowing) progressDialog.dismiss()
                         dm.add(downloadRequest())
                     }
 
