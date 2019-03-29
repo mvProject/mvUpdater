@@ -52,6 +52,7 @@ class Updater(private val view : Context) {
 
                     if (checkUpdateNeeded()){
                         view.alert("Are you want install $currentAppName update?","Update available"){
+                            also { view.setTheme(R.style.UpdateDialog) }
                             yesButton { executeIfOnline { downloadApk() } }
                             noButton { view.toast("Maybe Later...") }
                         }.show()
@@ -81,7 +82,7 @@ class Updater(private val view : Context) {
     private fun downloadRequest(): DownloadRequest {
             val downloadUri = Uri.parse("https://github.com/mvProject/MoviePremiers/blob/master/app/release/app-release.apk?raw=true")
             val destinationUri = Uri.parse(updateAppFileName)
-            val progressDialog = view.progressDialog("Downloading...")
+            val progressDialog = view.progressDialog(null,"Downloading...")
             return DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setStatusListener(object : DownloadStatusListenerV1 {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="UpdateDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:buttonBarNegativeButtonStyle">@style/btnStyle</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/btnStyle</item>
+    </style>
+
+    <style name="btnStyle" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/dialog_button_text_color</item>
+    </style>
+</resources>
