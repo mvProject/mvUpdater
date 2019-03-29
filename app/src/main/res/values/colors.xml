@@ -5,4 +5,5 @@
 <color name="colorAccent">#D81B60</color>
 
     <color name="dialog_button_text_color">#AFB42B</color>
+    <color name="dialog_button_background_color">#00574B</color>
 </resources>
