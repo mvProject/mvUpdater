@@ -1,5 +1,5 @@
 {
   "latestVersion": "1.0.1",
-  "file": "app-release.apk",
+  "file": "app-debug.apk",
   "url": "https://github.com/mvProject/mvUpdater/blob/master/app/release/app-debug.apk?raw=true"
 }
