@@ -31,11 +31,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.google.android.material:material:1.0.0'
+    //implementation 'com.google.android.material:material:1.0.0'
 
-    implementation "org.jetbrains.anko:anko-commons:0.10.4"
-    implementation "org.jetbrains.anko:anko-design:0.10.4"
-    implementation 'com.google.code.gson:gson:2.8.5'
-    api 'com.mani:ThinDownloadManager:1.4.0'
-    api 'ru.superjob:kotlin-permissions:1.0.3'
+   // implementation "org.jetbrains.anko:anko-commons:0.10.4"
+  //  implementation "org.jetbrains.anko:anko-design:0.10.4"
+    api 'com.google.code.gson:gson:2.8.5'
 }

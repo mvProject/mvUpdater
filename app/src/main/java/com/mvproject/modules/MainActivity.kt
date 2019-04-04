@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private val json = "https://raw.githubusercontent.com/mvProject/MoviePremiers/master/app/release/update.json"
+    private val json = "https://raw.githubusercontent.com/mvProject/mvUpdater/master/app/release/update.json"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +23,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val upd = Updater(this)
 
+        fab.setOnClickListener {
+            upd.setUpdateJsonUrl(json)
+           //upd.start()
+            //upd.showUpdateDialog()
 
-        fab.setOnClickListener { view ->
-           // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-           //     .setAction("Action", null).show()
-           upd.setUpdateJsonUrl(json)
-           upd.start()
+
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -88,13 +88,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 }
