@@ -39,20 +39,22 @@ class Updater(private val view : Activity) : AppCompatActivity() {
 
     init {
         currentAppName = getCurrentAppName()
-        Log.d("Updater","currentAppName $currentAppName")
-       // currentAppPackage = getCurrentPackageName()
-       // Log.d("Updater","currentAppPackage $currentAppPackage")
         currentAppVersion = getCurrentVersionName()
-        Log.d("Updater","currentAppVersion $currentAppVersion")
     }
 
-    fun setUpdateJsonUrl(url : String){
+    /**
+     *  start updater
+     */
+    fun checkUpdateFromUrl(url : String){
         checkForPermissionNetworkState()
         if (isConnected)
             CheckUpdate().execute(url)
         else toast("No internet connection")
     }
 
+    /**
+     * check json for available uodate
+     */
     @SuppressLint("StaticFieldLeak")
     inner class CheckUpdate : AsyncTask<String, Int, Update?>() {
 
@@ -67,6 +69,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         }
     }
 
+    /**
+     * download file update from specified url
+     */
     private fun downloadFile(update: Update?){
         deleteIfExist(update?.file)
         val request = DownloadManager.Request(Uri.parse(update?.url))
@@ -80,10 +85,16 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         dm.enqueue(request)
     }
 
+    /**
+     * check update info and show dialog if update needed
+     */
     private fun promptForUpdate(){
         if(checkUpdateNeeded()) showUpdateDialog()
     }
 
+    /**
+     * delete previous update file if it exists
+     */
     private fun deleteIfExist(filename : String?){
         filename?.let {
             val file = File(getFileFullPath(filename))
@@ -92,6 +103,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         }
     }
 
+    /**
+     * create and show updateing dialog
+     */
     private fun showUpdateDialog(){
         val dialog = AlertDialog.Builder(view).create()
         dialog.setTitle(currentAppName)
@@ -114,6 +128,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         btnNegative.layoutParams = layoutParams
     }
 
+    /**
+     * promt if needed for permission to write to storage
+     */
     private fun checkForPermissionWriteStorage(permission : String){
         if (ContextCompat.checkSelfPermission(view, permission) != permGranted) {
             ActivityCompat.requestPermissions(view,arrayOf(permission),permWriteStorageCode)
@@ -121,6 +138,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         else downloadFile(update)
     }
 
+    /**
+     * promt if needed for permission to install package
+     */
     private fun checkForPermissionInstall(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (ContextCompat.checkSelfPermission(view, Manifest.permission.REQUEST_INSTALL_PACKAGES) != permGranted) {
@@ -131,6 +151,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         else installUpdate(update?.file)
     }
 
+    /**
+     *
+     */
     override fun onRequestPermissionsResult(requestCode: Int,permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             permWriteStorageCode -> {
@@ -157,14 +180,23 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         }
     }
 
+    /**
+     * get the current app version
+     */
     private fun getCurrentVersionName(): String {
         return view.packageManager.getPackageInfo(view.packageName, 0).versionName
     }
 
+    /**
+     * get the current app package name
+     */
     private fun getCurrentPackageName(): String {
         return view.packageManager.getPackageInfo(view.packageName, 0).packageName
     }
 
+    /**
+     * get the current app name
+     */
     private fun getCurrentAppName(): String {
         return view.packageManager.getApplicationLabel(
             view.packageManager.getApplicationInfo(
@@ -188,6 +220,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         return Environment.getExternalStorageDirectory().absolutePath + "/Download/" + filename
     }
 
+    /**
+     * promt if needed for permission to check internet connection
+     */
     private fun checkForPermissionNetworkState(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (ContextCompat.checkSelfPermission(view, Manifest.permission.REQUEST_INSTALL_PACKAGES) != permGranted) {
@@ -207,6 +242,9 @@ class Updater(private val view : Activity) : AppCompatActivity() {
                isConnected = true
     }
 
+    /**
+     * install apk with app update
+     */
     private fun installUpdate(filename: String?){
         filename?.let {
             val updateFile = getFileFullPath(filename)
@@ -219,16 +257,22 @@ class Updater(private val view : Activity) : AppCompatActivity() {
             view.startActivity(intent)
         }
     }
+
+    /**
+     * simplify toast message
+     */
     private fun toast(msg : String){
         Toast.makeText(view,msg,Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * watch when download ending and start installing update
+     */
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
 
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == action) {
-                toast("download complete")
                 checkForPermissionInstall()
             }
         }

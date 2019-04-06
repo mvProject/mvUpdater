@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val upd = Updater(this)
 
         fab.setOnClickListener {
-            upd.setUpdateJsonUrl(json)
+            upd.checkUpdateFromUrl(json)
            //upd.start()
             //upd.showUpdateDialog()
 
