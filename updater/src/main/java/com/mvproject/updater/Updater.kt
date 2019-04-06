@@ -22,8 +22,6 @@ import java.io.File
 import android.content.Intent
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Build
 
 
@@ -35,7 +33,6 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     private val permGranted = PackageManager.PERMISSION_GRANTED
     private val permWriteStorageCode = 1000
     private val permInstallCode = 1001
-    private var isConnected = false
 
     init {
         currentAppName = getCurrentAppName()
@@ -46,10 +43,7 @@ class Updater(private val view : Activity) : AppCompatActivity() {
      *  start updater
      */
     fun checkUpdateFromUrl(url : String){
-        checkForPermissionNetworkState()
-        if (isConnected)
             CheckUpdate().execute(url)
-        else toast("No internet connection")
     }
 
     /**
@@ -218,28 +212,6 @@ class Updater(private val view : Activity) : AppCompatActivity() {
      */
     private fun getFileFullPath(filename: String) : String{
         return Environment.getExternalStorageDirectory().absolutePath + "/Download/" + filename
-    }
-
-    /**
-     * promt if needed for permission to check internet connection
-     */
-    private fun checkForPermissionNetworkState(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ContextCompat.checkSelfPermission(view, Manifest.permission.REQUEST_INSTALL_PACKAGES) != permGranted) {
-                ActivityCompat.requestPermissions(view,arrayOf(Manifest.permission.REQUEST_INSTALL_PACKAGES),permInstallCode)
-            }
-            else hasNetwork(view)
-        }
-        else hasNetwork(view)
-    }
-    /**
-    * Check Internet connection available
-    */
-    private fun hasNetwork(view: Context){
-        val connectivityManager = view.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        if (activeNetwork != null && activeNetwork.isConnected)
-               isConnected = true
     }
 
     /**
