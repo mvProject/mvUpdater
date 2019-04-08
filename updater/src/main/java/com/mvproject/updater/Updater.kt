@@ -246,7 +246,7 @@ class Updater(private val view : Activity) : AppCompatActivity() {
                     )
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
-                26 -> {
+                in 26..28 -> {
                     val uriFile = getFileUri(view, (File(updateFile)))
                     intent.setDataAndType(
                         uriFile, "application/vnd.android.package-archive"
