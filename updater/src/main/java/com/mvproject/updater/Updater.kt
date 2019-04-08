@@ -12,7 +12,6 @@ import android.os.Environment
 import com.google.gson.Gson
 import java.net.URL
 import android.os.AsyncTask
-import android.util.Log
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +22,7 @@ import android.content.Intent
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.os.Build
+import androidx.core.content.FileProvider
 
 
 class Updater(private val view : Activity) : AppCompatActivity() {
@@ -33,17 +33,19 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     private val permGranted = PackageManager.PERMISSION_GRANTED
     private val permWriteStorageCode = 1000
     private val permInstallCode = 1001
+    private var currentApi = 0
 
     init {
         currentAppName = getCurrentAppName()
         currentAppVersion = getCurrentVersionName()
+        currentApi = Build.VERSION.SDK_INT
     }
 
     /**
      *  start updater
      */
     fun checkUpdateFromUrl(url : String){
-            CheckUpdate().execute(url)
+        CheckUpdate().execute(url)
     }
 
     /**
@@ -64,22 +66,6 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     }
 
     /**
-     * download file update from specified url
-     */
-    private fun downloadFile(update: Update?){
-        deleteIfExist(update?.file)
-        val request = DownloadManager.Request(Uri.parse(update?.url))
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-        request.setTitle(currentAppName)
-        request.setDescription("upgrade downloading...")
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,update?.file)
-        val dm = view.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        view.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
-        dm.enqueue(request)
-    }
-
-    /**
      * check update info and show dialog if update needed
      */
     private fun promptForUpdate(){
@@ -87,29 +73,18 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     }
 
     /**
-     * delete previous update file if it exists
-     */
-    private fun deleteIfExist(filename : String?){
-        filename?.let {
-            val file = File(getFileFullPath(filename))
-            if (file.exists())
-                file.delete()
-        }
-    }
-
-    /**
-     * create and show updateing dialog
+     * create and show updating dialog
      */
     private fun showUpdateDialog(){
         val dialog = AlertDialog.Builder(view).create()
         dialog.setTitle(currentAppName)
-        dialog.setMessage("New version is available! Do you want to upgrade?")
+        dialog.setMessage("Доступна новая версия приложения! Хотите обновить?")
 
-        dialog.setButton(AlertDialog.BUTTON_POSITIVE,"Update"){ _, _ ->
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE,"Обновить"){ _, _ ->
             checkForPermissionWriteStorage(permWriteStorage)
         }
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE,"Later"){ _, _ ->
-            toast("Next time")
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE,"Позже"){ _, _ ->
+            toast("Может в следующий раз")
         }
 
         dialog.show()
@@ -122,6 +97,7 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         btnNegative.layoutParams = layoutParams
     }
 
+
     /**
      * promt if needed for permission to write to storage
      */
@@ -133,16 +109,59 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     }
 
     /**
+     * download file update from specified url
+     */
+    private fun downloadFile(update: Update?){
+        deleteIfExist(update?.file)
+        val request = DownloadManager.Request(Uri.parse(update?.url))
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+        request.setTitle(currentAppName)
+        request.setDescription("загрузка обновления...")
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,update?.file)
+        val dm = view.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        view.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        dm.enqueue(request)
+    }
+
+    /**
+     * delete previous update file if it exists
+     */
+    private fun deleteIfExist(filename : String?){
+        filename?.let {
+            val file = File(getFileFullPath(filename))
+
+            if (file.exists())
+                file.delete()
+        }
+    }
+
+    /**
      * promt if needed for permission to install package
      */
-    private fun checkForPermissionInstall(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ContextCompat.checkSelfPermission(view, Manifest.permission.REQUEST_INSTALL_PACKAGES) != permGranted) {
-                ActivityCompat.requestPermissions(view,arrayOf(Manifest.permission.REQUEST_INSTALL_PACKAGES),permInstallCode)
+
+    @SuppressLint("InlinedApi")
+    fun checkForPermissionInstall(){
+        when(currentApi) {
+            in 23..25 ->{
+                if (ContextCompat.checkSelfPermission(
+                        view,
+                        Manifest.permission.REQUEST_INSTALL_PACKAGES
+                    ) != permGranted
+                ) {
+                    ActivityCompat.requestPermissions(
+                        view,
+                        arrayOf(Manifest.permission.REQUEST_INSTALL_PACKAGES),
+                        permInstallCode
+                    )
+                } else {
+                    installUpdate(update?.file)
+                }
             }
-            else installUpdate(update?.file)
+            else -> {
+                installUpdate(update?.file)
+            }
         }
-        else installUpdate(update?.file)
     }
 
     /**
@@ -169,7 +188,6 @@ class Updater(private val view : Activity) : AppCompatActivity() {
                 return
             }
             else -> {
-                // Ignore all other requests.
             }
         }
     }
@@ -221,13 +239,28 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         filename?.let {
             val updateFile = getFileFullPath(filename)
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(
-                Uri.fromFile(File(updateFile)), "application/vnd.android.package-archive"
-            )
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            Log.d("Updater", "start installing")
+            when (currentApi) {
+                in 19..25 -> {
+                    intent.setDataAndType(
+                        Uri.fromFile(File(updateFile)), "application/vnd.android.package-archive"
+                    )
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                26 -> {
+                    val uriFile = getFileUri(view, (File(updateFile)))
+                    intent.setDataAndType(
+                        uriFile, "application/vnd.android.package-archive"
+                    )
+                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
+            }
             view.startActivity(intent)
         }
+    }
+
+    private fun getFileUri(context : Context, file : File) : Uri {
+        return FileProvider.getUriForFile(context,
+                getCurrentPackageName() + ".provider" ,file)
     }
 
     /**

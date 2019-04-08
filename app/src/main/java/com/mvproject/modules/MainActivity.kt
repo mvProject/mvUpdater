@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val json = "https://raw.githubusercontent.com/mvProject/mvUpdater/master/app/release/update.json"
-    //private lateinit var upd : Updater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +28,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         fab.setOnClickListener {
             upd.checkUpdateFromUrl(json)
+            //upd.checkForPermissionInstall()
+           // upd.installUpdate("app-debug.apk")
         }
 
         Log.d("Updater","OnCreate")
