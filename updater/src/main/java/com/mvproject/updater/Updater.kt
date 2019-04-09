@@ -21,6 +21,7 @@ import java.io.File
 import android.content.Intent
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Build
 import androidx.core.content.FileProvider
 
@@ -45,7 +46,17 @@ class Updater(private val view : Activity) : AppCompatActivity() {
      *  start updater
      */
     fun checkUpdateFromUrl(url : String){
-        CheckUpdate().execute(url)
+        if (isNetworkConnected())
+            CheckUpdate().execute(url)
+        else
+            toast(view.resources.getString(R.string.no_internet_message))
+    }
+    /**
+    * check internet connection is available
+    */
+    private fun isNetworkConnected(): Boolean {
+        val cm = view.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.activeNetworkInfo != null
     }
 
     /**
@@ -78,13 +89,13 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     private fun showUpdateDialog(){
         val dialog = AlertDialog.Builder(view).create()
         dialog.setTitle(currentAppName)
-        dialog.setMessage("Доступна новая версия приложения! Хотите обновить?")
+        dialog.setMessage(view.resources.getString(R.string.update_message))
 
-        dialog.setButton(AlertDialog.BUTTON_POSITIVE,"Обновить"){ _, _ ->
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE,view.resources.getString(R.string.btn_update_text)){ _, _ ->
             checkForPermissionWriteStorage(permWriteStorage)
         }
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE,"Позже"){ _, _ ->
-            toast("Может в следующий раз")
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE,view.resources.getString(R.string.btn_later_text)){ _, _ ->
+            toast(view.resources.getString(R.string.later_message))
         }
 
         dialog.show()
@@ -116,7 +127,7 @@ class Updater(private val view : Activity) : AppCompatActivity() {
         val request = DownloadManager.Request(Uri.parse(update?.url))
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
         request.setTitle(currentAppName)
-        request.setDescription("загрузка обновления...")
+        request.setDescription(view.resources.getString(R.string.upgrade_download_message))
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,update?.file)
         val dm = view.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

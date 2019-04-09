@@ -92,18 +92,4 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("Updater","OnResume")
-        if (isNetworkConnected())
-            Log.d("Updater","Connected")
-        else
-            Log.d("Updater","Not Connected")
-    }
-
-    private fun isNetworkConnected(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetworkInfo != null
-    }
 }
