@@ -48,8 +48,6 @@ class Updater(private val view : Activity) : AppCompatActivity() {
     fun checkUpdateFromUrl(url : String){
         if (isNetworkConnected())
             CheckUpdate().execute(url)
-        else
-            toast(view.resources.getString(R.string.no_internet_message))
     }
     /**
     * check internet connection is available

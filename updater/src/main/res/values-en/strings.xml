@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">updater</string>
+    <string name="btn_update_text">Update</string>
+    <string name="btn_later_text">Later</string>
+    <string name="update_message">New version is available! Do you want to upgrade?</string>
+    <string name="later_message">Maybe next time</string>
+    <string name="upgrade_download_message">update downloading</string>
+</resources>

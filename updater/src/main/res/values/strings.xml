@@ -5,5 +5,4 @@
     <string name="update_message">Доступна новая версия приложения! Хотите обновить?</string>
     <string name="later_message">Может в следующий раз</string>
     <string name="upgrade_download_message">загрузка обновления</string>
-    <string name="no_internet_message">Не включен интернет</string>
 </resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">updater</string>
+    <string name="btn_update_text">Оновити</string>
+    <string name="btn_later_text">Пізніше</string>
+    <string name="upgrade_download_message">завантаження оновлення</string>
+    <string name="later_message">Мабуть наступного разу</string>
+    <string name="update_message">Доступна нова версія додатку! Бажаєте оновити?</string>
+</resources>
